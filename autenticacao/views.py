@@ -1,5 +1,5 @@
-from django.shortcuts import render
-from django.contrib.auth import authenticate
+from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, logout
 from django.http.response import HttpResponse
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
@@ -52,11 +52,20 @@ def login(request):
         grant = authenticate(username=usuario, password=senha)
 
         if grant:
+            usuario = User.objects.filter(username=usuario).first()
             users = User.objects.all()
             context = {
-                'users': users
+                'users': users,
+                'user': usuario
             }
-            usuario = User.objects.filter(username=usuario).first()
             return render(request, 'index.html', context)
+
+        return HttpResponse('Usuário ou senha incorretos.')
+
+
+@login_required(login_url='login/')
+def sair(request):
+    logout(request)
+    # return redirect('login.html')
 
 
